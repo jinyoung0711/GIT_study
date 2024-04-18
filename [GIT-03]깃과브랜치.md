@@ -187,9 +187,218 @@ apple 브랜치와 master 브랜치는 커밋이 같은 부모 커밋을 갖고 
 
 ```jsx
 git log master..apple <- master 브랜치에는 없고 apple 브랜치에만 있는 커밋
-git log apple.master <- apple 브랜치에는 없고 master 브랜치에만 있는 커
+git log apple.master <- apple 브랜치에는 없고 master 브랜치에만 있는 커밋
 ```
 
 ![Untitled]([GIT-03]깃과브랜치/Untitled%2011.png)
 
 마침표 왼쪽에 있는 브랜치를 기준으로 오른쪽 브랜치와 비교
+
+## 03-4 브랜치 병합하기
+
+### 서로 다른 파일 병합하기
+
+```jsx
+cd ~
+git init manual-2
+cd manual-2
+ls -al
+```
+
+```jsx
+vim work.txt <- work.txt라는 파일을 만들어 '1' 입력하고 저장
+git add work.txt
+git commit -m 'work 1'
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2012.png)
+
+```jsx
+git branch o2
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2013.png)
+
+```jsx
+vim master.txt <- master.txt라는 파일을 만들어 'master 2' 입력하고 저장
+git add master.txt
+git commit -m 'master work 2'
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2014.png)
+
+```jsx
+git checkout o2
+```
+
+```jsx
+vim o2.txt <- o2.txt 파일을 만들어 'o2 2' 입력하고 저장
+git add o2.txt
+git commit -m 'o2 work 2'
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2015.png)
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2016.png)
+
+o2 브랜치의 내용을 master 브랜치로 병합
+
+브랜치를 병합하기 위해서는 먼저 master 브랜치로 체크아웃
+
+```jsx
+git checkout master
+git merge o2
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2017.png)
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2018.png)
+
+병합된 것과 어떻게 병합되었는지 확인 가능
+
+### 빨리 감기 병합
+
+master 브랜치에서 브랜치를 분기한 후에 master 브랜치에 아무 변화가 없다면 분기한 브랜치를 병합하는 것은 간단하다.
+
+분기한 브랜치에서 만든 최신 커밋을 master 브랜치가 가리키게만 하면 되기 때문이다.
+
+이 경우에는 화면에 커밋 해시가 업데이트되었다는 내용과 함께 fast-forward라는 메시지가 나타난다. 이런 병합을 빨리 감기 병합이라고 부른다. 
+
+### 브랜치를 병합할 떄 편집기 창이 열리지 않게 하려면
+
+```jsx
+git merge o2 --no-edit
+```
+
+```jsx
+git merge o2 --edit
+```
+
+### 같은 문서의 다른 위치를 수정했을 때 병합하기
+
+master 브랜치와 o2 브랜치에는 똑같이 work.txt 파일이 존재 
+
+양쪽 브랜치에서 수정하되 서로 다른 위치를 수정한 후 브랜치를 병합했을 때 어떤 결과가 나오는지 확인
+
+```jsx
+cd ~ 
+git init manual-3
+cd manual-3
+```
+
+```jsx
+vim work.txt 
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2019.png)
+
+```jsx
+git add work.txt
+git commit -m 'work 1'
+```
+
+```jsx
+git branch o2
+vim work.txt <- 첫 번째 content 다음에 master content 2 입력 후 저장
+git commit -am 'master work 2'
+```
+
+```jsx
+git checkout o2
+vim work.txt <- 두 번째 content 다음에 o2 content 2 입력 후 저장
+git commit -am 'o2 work 2'
+```
+
+```jsx
+git checkout master
+git merge o2 
+cat work.txt
+```
+
+![자연스럽게 하나의 파일에 합쳐진 것을 볼 수 있다.]([GIT-03]깃과브랜치/Untitled%2020.png)
+
+자연스럽게 하나의 파일에 합쳐진 것을 볼 수 있다.
+
+### 같은 문서의 같은 위치를 수정했을 때 병합하기
+
+```jsx
+cd ~ 
+git init manual-4
+cd manual -4
+```
+
+```jsx
+vim work.txt 
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2021.png)
+
+```jsx
+git add work.txt
+git commit -m 'work 1'
+```
+
+```jsx
+git branch o2
+vim work.txt <- 첫 번째 content 다음에 master content 2 입력 후 저장
+git commit -am 'master work 2'
+```
+
+```jsx
+git checkout o2
+vim work.txt <- 같은 위치 o2 content 2 입력 후 저장
+git commit -am 'o2 work 2'
+```
+
+```jsx
+git checkout master
+git merge o2 
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2022.png)
+
+이전에 git merge 명령을 실행했을 때처럼 자동으로 빔이 열리지 않고 메시지가 나타난다. 이 메시지는 work.txt를 자동 병합하는 동안 충돌(conflict)이 발생했다는 뜻이다.
+
+충돌이 생긴 문서는 자동으로 병합될 수 없으므로 사용자가 직접 충돌 부분을 해결한 후 커밋해야 한다. 
+
+```jsx
+vim work.txt
+```
+
+![Untitled]([GIT-03]깃과브랜치/Untitled%2023.png)
+
+```jsx
+# title
+content
+<<<<<<< HEAD
+master content 2 -> 현재 브랜치에서 수정한 내용
+=======
+o2 content 2 -> 병합할 브랜치에서 수정한 내
+>>>>>>> o2
+# title
+content
+
+```
+
+```jsx
+git commit -am 'merge o2 branch'
+```
+
+git log 명령에 —oneline, —branches, —graph 옵션을 사용하여 관계 확인 가능
+
+### 병합이 끝난 브랜치 삭제하기
+
+단 이렇게 브랜치를 삭제하더라도 이 브랜치가 완전히 지워지는 것이 아니라 다시 같은 이름의 브랜치를 만들면 예전 내용을 다시 볼 수 있다.
+
+```jsx
+git branch
+```
+
+브랜치를 삭제하기 위해서는 master 브랜치에서 해야한다.
+
+```jsx
+git checkout master
+git branch -d o2
+```
+
+master 브랜치에 병합하지 않은 브랜치를 삭제하려면 오류메세지가 나타난다. 이럴 경우 -d 옵션 대신 -D를 사용하면 강제로 브랜치를 삭제할 수 있다.
